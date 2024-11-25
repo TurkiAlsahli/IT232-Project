@@ -1,0 +1,235 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Main {
+    private static Supervisor supervisor = new Supervisor();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        boolean exitProgram = false;
+
+        System.out.println("Welcome to the Course Management System!");
+
+        // Main menu loop
+        while (!exitProgram) {
+            System.out.println("\nPlease choose an option:");
+            System.out.println("1. Add a Course (Supervisor)");
+            System.out.println("2. Display All Courses");
+            System.out.println("3. Search for a Course by Title or Instructor");
+            System.out.println("4. Display Courses by Area");
+            System.out.println("5. Remove a Course (Supervisor)");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    int addAttempts = 0;
+                    boolean addAuthorized = false;
+
+                    while (addAttempts < 3) {
+                        System.out.print("Enter password to add a course: ");
+                        String addPassword = scanner.nextLine();
+                        if (addPassword.equals("12345")) {
+                            addAuthorized = true;
+                            break;
+                        } else {
+                            addAttempts++;
+                            System.out.println("Incorrect password. Attempts remaining: " + (3 - addAttempts));
+                        }
+                    }
+
+                    if (addAuthorized) {
+                        System.out.print("Enter Course Title: ");
+                        String title = scanner.nextLine();
+                        System.out.print("Enter Instructor Name: ");
+                        String instructor = scanner.nextLine();
+                        System.out.print("Enter Course Area: ");
+                        String area = scanner.nextLine();
+                        supervisor.addCourse(title, instructor, area);
+                    } else {
+                        System.out.println("Maximum attempts reached. Exiting the system.");
+                        exitProgram = true;
+                    }
+                    break;
+
+                case 2:
+                    System.out.println();
+                    supervisor.displayCourses();
+
+                    boolean validResponse = false;
+                    while (!validResponse) {
+                        System.out.print("\nDo you need more help? (yes/no): ");
+                        String helpResponse = scanner.nextLine().trim().toLowerCase();
+
+                        if (helpResponse.equals("yes")) {
+                            validResponse = true;
+                        } else if (helpResponse.equals("no")) {
+                            System.out.println("Goodbye! Exiting the Course Management System.");
+                            exitProgram = true;
+                            validResponse = true;
+                        } else if (helpResponse.equals("maybe")) {
+                            System.out.println("Maybe you want to go to sleep. Goodbye!");
+                            exitProgram = true;
+                            validResponse = true;
+                        } else {
+                            System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+                        }
+                    }
+                    break;
+
+                case 3:
+                    System.out.print("Enter Course Title or Instructor to search: ");
+                    String keyword = scanner.nextLine();
+                    supervisor.searchCourse(keyword);
+                    break;
+
+                case 4:
+                    System.out.print("Enter Area to display relevant courses: ");
+                    String searchArea = scanner.nextLine();
+                    supervisor.displayCoursesByArea(searchArea);
+                    break;
+
+                case 5:
+                    int removeAttempts = 0;
+                    boolean removeAuthorized = false;
+
+                    while (removeAttempts < 3) {
+                        System.out.print("Enter password to remove a course: ");
+                        String removePassword = scanner.nextLine();
+                        if (removePassword.equals("12345")) {
+                            removeAuthorized = true;
+                            break;
+                        } else {
+                            removeAttempts++;
+                            System.out.println("Incorrect password. Attempts remaining: " + (3 - removeAttempts));
+                        }
+                    }
+
+                    if (removeAuthorized) {
+                        System.out.print("Enter Course Title to remove: ");
+                        String removeTitle = scanner.nextLine();
+                        supervisor.removeCourse(removeTitle);
+                    } else {
+                        System.out.println("Maximum attempts reached. Exiting the system.");
+                        exitProgram = true;
+                    }
+                    break;
+
+                case 6:
+                    exitProgram = true;
+                    System.out.println("Exiting the Course Management System. Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid option, please try again.");
+            }
+        }
+        scanner.close();
+    }
+}
+
+class Supervisor {
+    private List<Course> courses;
+
+    public Supervisor() {
+        courses = new ArrayList<>();
+        loadDefaultCourses();
+    }
+
+    private void loadDefaultCourses() {
+        courses.add(new Course("Java Programming", "Sultan Almeghlef", "Programming"));
+        courses.add(new Course("Data Structures", "Abdullbasid Banga", "Computer Science"));
+        courses.add(new Course("Web Development", "Fahad Mohammed", "Programming"));
+        courses.add(new Course("Algorithms", "Abdullah Rashed", "Computer Science"));
+        courses.add(new Course("Operating Systems", "Dr. Ayman Ahmed", "Computer Science"));
+        courses.add(new Course("Software Engineering", "Dr. Omar Nasser", "Engineering"));
+        courses.add(new Course("How Not To Code", "Turki Alsahli", "Programming"));
+    }
+
+    public void addCourse(String title, String instructor, String area) {
+        courses.add(new Course(title, instructor, area));
+        System.out.println("Course added successfully.");
+    }
+
+    public void displayCourses() {
+        if (courses.isEmpty()) {
+            System.out.println("No courses available.");
+        } else {
+            for (Course course : courses) {
+                course.displayCourseInfo();
+            }
+        }
+    }
+
+    public void searchCourse(String keyword) {
+        boolean found = false;
+        for (Course course : courses) {
+            if (course.getTitle().equalsIgnoreCase(keyword) || course.getInstructor().equalsIgnoreCase(keyword)) {
+                course.displayCourseInfo();
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No course found with the specified title or instructor.");
+        }
+    }
+
+    public void displayCoursesByArea(String area) {
+        boolean found = false;
+        for (Course course : courses) {
+            if (course.getArea().equalsIgnoreCase(area)) {
+                course.displayCourseInfo();
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No courses available in the specified area.");
+        }
+    }
+
+    public void removeCourse(String title) {
+        boolean removed = courses.removeIf(course -> course.getTitle().equalsIgnoreCase(title));
+        if (removed) {
+            System.out.println("Course removed successfully.");
+        } else {
+            System.out.println("Course not found.");
+        }
+    }
+}
+
+class Course {
+    private String title;
+    private String instructor;
+    private String area;
+
+    public Course(String title, String instructor, String area) {
+        this.title = title;
+        this.instructor = instructor;
+        this.area = area;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void displayCourseInfo() {
+        System.out.println("Course Title: " + title + "\nInstructor: " + instructor + "\nArea: " + area + "\n");
+    }
+}
